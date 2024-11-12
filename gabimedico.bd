@@ -1,0 +1,137 @@
+-- Criação do banco de dados
+CREATE DATABASE hospital;
+USE hospital;
+
+-- Criação das tabelas
+CREATE TABLE Jogadores (
+    id_jogador INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    data_nascimento DATE,
+    telefone VARCHAR(15),
+    endereco VARCHAR(255)
+);
+
+CREATE TABLE Medicos (
+    id_medico INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    especialidade VARCHAR(50),
+    telefone VARCHAR(15),
+    email VARCHAR(50)
+);
+
+CREATE TABLE Consultas (
+    id_consulta INT PRIMARY KEY AUTO_INCREMENT,
+    id_jogador INT,
+    id_medico INT,
+    data_consulta DATETIME,
+    tipo_consulta VARCHAR(50),
+    observacoes TEXT,
+    FOREIGN KEY (id_jogador) REFERENCES Jogadores(id_jogador),
+    FOREIGN KEY (id_medico) REFERENCES Medicos(id_medico)
+);
+
+-- Inserção de dados
+-- Jogadores
+INSERT INTO Jogadores (nome, data_nascimento, telefone, endereco) VALUES
+('Cristiano Ronaldo', '1985-02-05', '(31)99101-2030', 'Rua Djalma Andrade, 123, Castelo'),
+('Lionel Messi', '1987-06-24', '(31)99102-3040', 'Avenida Getúlio Vargas, 456, Centro'),
+('Vinicius Junior', '2000-07-12', '(31)99103-4050', 'Rua Guaicurus, 789, São Pedro'),
+('Neymar Junior', '1992-02-05', '(31)99104-5060', 'Praça Sete de Setembro, 321, Lourdes'),
+('Toni Kroos', '1990-01-04', '(31)99105-6070', 'Rua da Bahia, 654, Funcionários');
+
+-- Médicos
+INSERT INTO Medicos (nome, especialidade, telefone, email) VALUES
+('Dr. Fernando Silva', 'Cardiologia', '(31)98888-1111', 'fernando@hospital.com'),
+('Dra. Gabriela Oliveira', 'Ortopedia', '(31)98888-2222', 'gabriela@hospital.com'),
+('Dr. Henrique Costa', 'Fisioterapia', '(31)98888-3333', 'henrique@hospital.com'),
+('Dra. Isabel Martins', 'Nutrição', '(31)98888-4444', 'isabel@hospital.com'),
+('Dr. João Santos', 'Psicologia', '(31)98888-5555', 'joao@hospital.com');
+
+-- Consultas
+INSERT INTO Consultas (id_jogador, id_medico, data_consulta, tipo_consulta, observacoes) VALUES
+(1, 1, '2023-06-10 09:00:00', 'Cardiovascular', 'Exame de rotina'),
+(2, 1, '2023-07-15 14:30:00', 'Cardiovascular', 'Acompanhamento'),
+(3, 2, '2023-08-20 10:00:00', 'Fisioterapia', 'Lesão no tornozelo'),
+(4, 3, '2023-09-05 15:00:00', 'Psicologia', 'Avaliação de estresse'),
+(5, 4, '2023-10-01 11:30:00', 'Nutrição', 'Ajuste na dieta');
+
+-- Consultas solicitadas
+
+-- 1. Lista de jogadores e suas consultas
+SELECT j.nome AS jogador, c.data_consulta, m.nome AS medico
+FROM Jogadores j
+JOIN Consultas c ON j.id_jogador = c.id_jogador
+JOIN Medicos m ON c.id_medico = m.id_medico;
+
+-- 2. Jogadores sem telefone
+SELECT * FROM Jogadores WHERE telefone IS NULL;
+
+-- 3. Médicos com especialidades específicas
+SELECT * FROM Medicos
+WHERE especialidade IN ('Cardiologia', 'Fisioterapia');
+
+-- 4. Consultas em intervalo de datas
+SELECT * FROM Consultas
+WHERE data_consulta BETWEEN '2023-06-01' AND '2023-10-31';
+
+-- 5. Jogadores com nome começando com 'C'
+SELECT * FROM Jogadores WHERE nome LIKE 'C%';
+
+-- 6. Especialidades únicas
+SELECT DISTINCT especialidade FROM Medicos;
+
+-- 7. Idade média dos jogadores
+SELECT AVG(TIMESTAMPDIFF(YEAR, data_nascimento, CURDATE())) as idade_media
+FROM Jogadores;
+
+-- 8. Total de consultas
+SELECT COUNT(*) as total_consultas FROM Consultas;
+
+-- 9. Primeira e última consulta
+SELECT
+    MIN(data_consulta) as primeira_consulta,
+    MAX(data_consulta) as ultima_consulta
+FROM Consultas;
+
+-- 10. Jogadores ordenados por data de nascimento
+SELECT * FROM Jogadores ORDER BY data_nascimento;
+
+-- 11. Número de consultas por médico (mais de uma consulta)
+SELECT m.nome, COUNT(*) as total_consultas
+FROM Medicos m
+JOIN Consultas c ON m.id_medico = c.id_medico
+GROUP BY m.id_medico, m.nome
+HAVING total_consultas > 1;
+
+-- 12. Lista de consultas com dados dos jogadores e médicos
+SELECT c.*, j.nome as jogador, m.nome as medico
+FROM Consultas c
+JOIN Jogadores j ON c.id_jogador = j.id_jogador
+JOIN Medicos m ON c.id_medico = m.id_medico;
+
+-- 13. União de jogadores e médicos
+SELECT nome, 'Jogador' as tipo FROM Jogadores
+UNION
+SELECT nome, 'Médico' as tipo FROM Medicos;
+
+-- 14. Jogadores e suas consultas (incluindo sem consultas)
+SELECT j.nome, c.data_consulta
+FROM Jogadores j
+LEFT JOIN Consultas c ON j.id_jogador = c.id_jogador;
+
+-- 15. Médicos e suas consultas (incluindo sem consultas)
+SELECT m.nome, c.data_consulta
+FROM Medicos m
+RIGHT JOIN Consultas c ON m.id_medico = c.id_medico;
+
+-- 16. Consultas e médicos (incluindo sem consultas)
+SELECT c.id_consulta, c.data_consulta, m.nome as medico
+FROM Consultas c
+LEFT JOIN Medicos m ON c.id_medico = m.id_medico;
+
+-- 17. Jogadores e médicos atendidos (incluindo sem atendimentos)
+SELECT m.nome as medico, j.nome as jogador
+FROM Medicos m
+RIGHT JOIN Consultas c ON m.id_medico = c.id_medico
+LEFT JOIN Jogadores j ON c.id_jogador = j.id_jogador;
+

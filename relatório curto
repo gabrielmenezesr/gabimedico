@@ -1,0 +1,25 @@
+O banco de dados foi desenvolvido para um sistema que controla as consultas médicas dos jogadores. Ele contém três tabelas principais:
+
+Jogadores: Guarda os dados dos jogadores, como nome, data de nascimento, telefone e endereço;
+Médicos: Mantém os dados dos médicos, como nome, especialidade, telefone e email;
+Consultas: Controla as consultas, incluindo o jogador, o médico, a data, o tipo de consulta e as observações;
+
+Algumas das consultas SQL relevantes são:
+
+Jogadores e suas consultas (incluindo aqueles sem consultas): Aqui, foi utilizado o LEFT JOIN, de forma a conseguir trazer todos os jogadores mesmo que não tenham registrada nenhuma consulta.
+sqlCopySELECT j.nome,  c.data_consulta
+FROM Jogadores j
+LEFT JOIN Consultas c ON j.id_jogador = c.id_jogador;
+
+Médicos e suas consultas (incluindo aqueles sem consultas): Aqui, foi utilizado o RIGHT JOIN de forma a conseguir trazer todos os médicos, mesmo aqueles sem consulta registrada.
+sqlCopySELECT m.nome, c.data_consulta
+FROM Medicos m
+RIGHT JOIN Consultas c ON m.id_medico = c.id_medico;
+
+Jogadores e médicos atendidos (incluindo aqueles sem atendimentos): Nessa consulta foi utilizada a combinação do LEFT JOIN e do RIGHT JOIN, para conseguir trazer todos os jogadores e médicos, mesmo os que não têm consultas cadastradas.
+sqlCopySELECT m.nome as medico, j.nome as jogador
+FROM Medicos m
+RIGHT JOIN Consultas c ON m.id_medico = c.id_medico
+LEFT JOIN Jogadores j ON c.id_jogador = j.id_jogador
+Essas consultas com LEFT JOIN e RIGHT JOIN têm a importância de se garantir que as informações pertinentes sejam exibidas, mesmo que não haja registros relacionados em uma das tabelas. Isso permite ter uma visão completa dos jogadores, médicos e consultas, independentemente de eles terem ou não registros associados.
+                                                                                                                                     O objetivo geral do banco de dados é fornecer um sistema de gerenciamento de consultas médicas de jogadores, permitindo que sejam registradas informações sobre os jogadores, médicos e as consultas realizadas.
